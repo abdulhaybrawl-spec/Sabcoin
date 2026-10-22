@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0c10">
+  <title>SabCoin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root { color-scheme: dark; --bg:#0c0c10; --panel:#17171e; --panel2:#20202a; --gold:#f5c451; --muted:#a4a4b4; --line:#30303b; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(ellipse at top,#252014 0%,var(--bg) 45%); color:#f7f7fb; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    button { font:inherit; cursor:pointer; }
+    .app { max-width:560px; min-height:100dvh; margin:auto; padding:18px 16px 96px; }
+    .top { display:flex; align-items:center; gap:12px; margin:8px 0 20px; }
+    .logo { width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#ffe08a,#b77c15);color:#17120a;font-size:25px;box-shadow:0 5px 25px #f5c45126; }
+    h1 { font-size:21px; margin:0; letter-spacing:.2px; }
+    .sub { color:var(--muted);font-size:12px;margin-top:4px; }
+    .pill { margin-left:auto; font-size:11px; border:1px solid #514221; color:var(--gold); padding:7px 9px; border-radius:999px; }
+    .balance { padding:20px; border-radius:24px; border:1px solid #5a4825; background:linear-gradient(130deg,#302512,#17171d 72%); position:relative; overflow:hidden; }
+    .balance:after { content:""; position:absolute; width:140px;height:140px;border-radius:50%;right:-38px;top:-55px;background:#f5c45112; }
+    .eyebrow { color:#d0bd8e; font-size:12px; }
+    .amount { font-size:34px; font-weight:800; letter-spacing:-1px; margin:9px 0 5px; }
+    .coin { color:var(--gold); }
+    .hint { color:var(--muted);font-size:12px; }
+    .quick { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 23px; }
+    .quick button { border:1px solid var(--line);background:var(--panel);border-radius:17px;padding:13px 5px;color:#fff; }
+    .quick .ico { display:block;font-size:22px;margin-bottom:7px; }
+    .quick span:last-child { font-size:12px; }
+    .section-head { display:flex;align-items:center;justify-content:space-between;margin:22px 2px 12px; }
+    h2 { font-size:17px;margin:0; }
+    .small-link { border:0;background:transparent;color:var(--gold);font-size:12px; }
+    .grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px; }
+    .product { background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:11px;min-width:0; }
+    .photo { height:112px;border-radius:13px;background:linear-gradient(145deg,#282833,#15151b);display:grid;place-items:center;color:#88889a;font-size:12px;text-align:center;padding:10px;border:1px dashed #464653; }
+    .photo img { width:100%;height:100%;object-fit:contain;display:none; }
+    .pname { font-size:13px;font-weight:700;margin:10px 0 6px; }
+    .price { color:var(--gold);font-size:12px;font-weight:700;margin-bottom:10px; }
+    .buy { width:100%;border:0;border-radius:11px;padding:10px;background:linear-gradient(120deg,#ffdc7a,#dba52e);color:#1c1608;font-size:12px;font-weight:800; }
+    .tiles { display:grid;grid-template-columns:repeat(2,1fr);gap:10px; }
+    .tile { text-align:left;padding:15px;background:var(--panel);border:1px solid var(--line);border-radius:17px;color:white; }
+    .tile b { display:block;margin-top:9px;font-size:13px; }
+    .tile small { color:var(--muted);display:block;margin-top:4px;font-size:11px; }
+    .page { display:none;animation:fade .18s ease; }
+    .page.active { display:block; }
+    @keyframes fade { from{opacity:.5;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    .nav { position:fixed;bottom:0;left:0;right:0;padding:9px 10px calc(9px + env(safe-area-inset-bottom));background:#101015ed;backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10; }
+    .nav-inner { display:grid;grid-template-columns:repeat(4,1fr);width:min(560px,100%);gap:5px; }
+    .nav button { border:0;background:transparent;color:#9393a3;border-radius:13px;padding:8px 2px;font-size:10px; }
+    .nav button span { display:block;font-size:20px;margin-bottom:4px; }
+    .nav button.active { color:var(--gold);background:#f5c45112; }
+    .card { background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:10px; }
+    .row { display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px; }
+    .row:last-child { border-bottom:0; }
+    .muted { color:var(--muted); }
+    .primary { border:0;background:linear-gradient(120deg,#ffdc7a,#dba52e);color:#1c1608;border-radius:13px;padding:13px 16px;font-weight:800;width:100%; }
+    .secondary { border:1px solid var(--line);background:var(--panel2);color:white;border-radius:13px;padding:12px 16px;width:100%;margin-top:9px; }
+    .notice { color:var(--muted);font-size:11px;line-height:1.5;margin-top:14px; }
+    .toast { position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#292832;border:1px solid #4a4855;padding:10px 14px;border-radius:12px;font-size:12px;display:none;z-index:20;max-width:90%; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="logo">S</div>
+      <div><h1>SabCoin</h1><div class="sub">O‘yinlar • Do‘kon • Coin</div></div>
+      <div class="pill">BETA</div>
+    </header>
+
+    <section class="page active" id="home">
+      <div class="balance">
+        <div class="eyebrow">🪙 Sizning balansingiz</div>
+        <div class="amount"><span id="balance">0</span> <span class="coin">SC</span></div>
+        <div class="hint">SabCoin hisobingiz</div>
+      </div>
+      <div class="quick">
+        <button onclick="go('shop')"><span class="ico">🛒</span><span>Do‘kon</span></button>
+        <button onclick="go('games')"><span class="ico">🎲</span><span>O‘yinlar</span></button>
+        <button onclick="go('profile')"><span class="ico">👤</span><span>Profil</span></button>
+      </div>
+      <div class="section-head"><h2>✨ Tavsiya etiladi</h2><button class="small-link" onclick="go('shop')">Barchasi →</button></div>
+      <div class="grid" id="featured"></div>
+      <p class="notice">Bu hozircha interfeys namunasi. Haqiqiy balans, xarid va o‘yinlarni ishlatish uchun server/API bilan ulash kerak.</p>
+    </section>
+
+    <section class="page" id="shop">
+      <div class="section-head"><h2>🛒 Brainrot do‘koni</h2></div>
+      <div class="hint" style="margin:0 2px 14px">Mahsulot rasmlarini keyin o‘zingiz qo‘shishingiz mumkin.</div>
+      <div class="grid" id="products"></div>
+    </section>
+
+    <section class="page" id="games">
+      <div class="section-head"><h2>🎮 O‘yinlar</h2></div>
+      <button class="tile" style="width:100%;margin-bottom:10px" onclick="playDice()"><span style="font-size:28px">🎲</span><b>DICE</b><small>Rangni tanlang va zar tashlang</small></button>
+      <div class="card" id="diceResult" style="display:none;text-align:center">
+        <div style="font-size:40px" id="diceEmoji">🎲</div><h2 id="diceTitle">DICE</h2><p class="muted" id="diceText">Demo animatsiya</p>
+        <button class="secondary" onclick="playDice()">🔄 Yana o‘ynash (demo)</button>
+      </div>
+      <p class="notice">DICE bu yerda faqat animatsiya namunasidir. Coin tikish va yutuqlarni serverda tekshirish shart.</p>
+    </section>
+
+    <section class="page" id="profile">
+      <div class="section-head"><h2>👤 Profilim</h2></div>
+      <div class="card">
+        <div class="row"><span class="muted">Telegram foydalanuvchi</span><b id="username">Mehmon</b></div>
+        <div class="row"><span class="muted">Telegram ID</span><b id="userid">—</b></div>
+        <div class="row"><span class="muted">Balans</span><b class="coin"><span id="profileBalance">0</span> SC</b></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:8px">🏆 Reyting</h2>
+        <div class="row"><span>🥇 1. Player</span><b>— SC</b></div>
+        <div class="row"><span>🥈 2. Player</span><b>— SC</b></div>
+        <div class="row"><span>🥉 3. Player</span><b>— SC</b></div>
+        <p class="notice">Haqiqiy reyting uchun foydalanuvchilar bazasiga ulash kerak.</p>
+      </div>
+    </section>
+
+    <section class="page" id="transfers">
+      <div class="section-head"><h2>💸 Coin o‘tkazish</h2></div>
+      <div class="card">
+        <label class="muted" for="recipient">Qabul qiluvchining @username</label>
+        <input id="recipient" placeholder="@username" style="display:block;width:100%;margin:8px 0 14px;padding:13px;border-radius:12px;border:1px solid var(--line);background:#101015;color:white">
+        <label class="muted" for="amount">Coin miqdori</label>
+        <input id="amount" type="number" min="1" placeholder="100" style="display:block;width:100%;margin:8px 0 14px;padding:13px;border-radius:12px;border:1px solid var(--line);background:#101015;color:white">
+        <button class="primary" onclick="toast('O‘tkazmalar serverga ulangandan keyin ishlaydi.')">O‘tkazishni davom ettirish</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <button class="active" data-page="home" onclick="go('home')"><span>⌂</span>Bosh sahifa</button>
+      <button data-page="shop" onclick="go('shop')"><span>🛒</span>Do‘kon</button>
+      <button data-page="games" onclick="go('games')"><span>🎮</span>O‘yinlar</button>
+      <button data-page="profile" onclick="go('profile')"><span>👤</span>Profil</button>
+    </div>
+  </nav>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) { tg.ready(); tg.expand(); try { tg.setHeaderColor('#0c0c10'); tg.setBackgroundColor('#0c0c10'); } catch(e) {} }
+
+    // Mahsulotlar ro‘yxati. Rasmlarni qo‘shish uchun image: "images/garama.png" kabi yo‘l yozing.
+    // Rasm bo‘lmasa, "Rasmni keyin qo‘shasiz" yozuvi ko‘rinadi.
+    const products = [
+      { id:"8", name:"Cursed Slap", price:400, image:"" },
+      { id:"9", name:"Yinyang Slap", price:400, image:"" },
+      { id:"1", name:"Summer base", price:800, image:"" },
+      { id:"2", name:"Garama", price:1000, image:"" },
+      { id:"7", name:"Moby", price:2000, image:"" },
+      { id:"3", name:"Cerberus", price:3000, image:"" },
+      { id:"4", name:"Dragon", price:21000, image:"" },
+      { id:"6", name:"Jonh Pork", price:350000, image:"" }
+    ];
+    const format = n => Number(n).toLocaleString('en-US');
+    function productCard(p) {
+      const photo = p.image
+        ? `<div class="photo"><img src="${p.image}" alt="${p.name}" style="display:block"></div>`
+        : `<div class="photo">🖼️<br>Rasmni keyin qo‘shasiz</div>`;
+      return `<article class="product">${photo}<div class="pname">${p.name}</div><div class="price">${format(p.price)} Coin</div><button class="buy" onclick="buyProduct('${p.id}')">Tanlash</button></article>`;
+    }
+    document.getElementById('products').innerHTML = products.map(productCard).join('');
+    document.getElementById('featured').innerHTML = products.slice(0,4).map(productCard).join('');
+
+    function go(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
+      document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.style.display = 'block';
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => el.style.display='none', 2600);
+      if (tg && tg.showPopup) { try { tg.showAlert(msg); } catch(e) {} }
+    }
+    function buyProduct(id) {
+      const p = products.find(x => x.id === id);
+      toast(p.name + ': xarid serverga ulangandan keyin ishlaydi.');
+    }
+    function playDice() {
+      const box = document.getElementById('diceResult');
+      const emoji = document.getElementById('diceEmoji');
+      const title = document.getElementById('diceTitle');
+      const desc = document.getElementById('diceText');
+      box.style.display = 'block';
+      title.textContent = 'Zar tashlanmoqda…';
+      desc.textContent = 'Animatsiya';
+      let frames = 0;
+      const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+      const timer = setInterval(() => {
+        emoji.textContent = faces[Math.floor(Math.random()*faces.length)];
+        frames++;
+        if (frames >= 12) {
+          clearInterval(timer);
+          title.textContent = 'Demo natija';
+          desc.textContent = 'Bu faqat ko‘rinish sinovi, Coin o‘zgartirilmaydi.';
+        }
+      }, 90);
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    }
+    const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if (user) {
+      document.getElementById('username').textContent = user.username ? '@'+user.username : (user.first_name || 'Foydalanuvchi');
+      document.getElementById('userid').textContent = user.id;
+    }
+  </script>
+</body>
+</html>
